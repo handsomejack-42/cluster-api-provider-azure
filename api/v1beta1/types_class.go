@@ -18,6 +18,7 @@ package v1beta1
 
 import (
 	corev1 "k8s.io/api/core/v1"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
 // AzureClusterClassSpec defines the AzureCluster properties that may be shared across several Azure clusters.
@@ -56,6 +57,17 @@ type AzureClusterClassSpec struct {
 	// Note: All cloud provider config values can be customized by creating the secret beforehand. CloudProviderConfigOverrides is only used when the secret is managed by the Azure Provider.
 	// +optional
 	CloudProviderConfigOverrides *CloudProviderConfigOverrides `json:"cloudProviderConfigOverrides,omitempty"`
+
+	// FailureDomains specifies the list of unique failure domains for the location/region of the cluster.
+	// A FailureDomain maps to Availability Zone with an Azure Region (if the region support them). An
+	// Availability Zone is a separate data center within a region and they can be used to ensure
+	// the cluster is more resilient to failure.
+	// See: https://learn.microsoft.com/azure/reliability/availability-zones-overview
+	// This list will be used to post-filter discovered failure domains to ensure only those that
+	// are specified here get reported in cluster's status. Omitting this field means all discovered
+	// failure domains get propagated to cluster's status.
+	// +optional
+	FailureDomains clusterv1.FailureDomains `json:"failureDomains,omitempty"`
 }
 
 // ExtendedLocationSpec defines the ExtendedLocation properties to enable CAPZ for Azure public MEC.
